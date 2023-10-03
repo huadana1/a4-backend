@@ -96,6 +96,7 @@ class Routes {
     return await User.idsToUsernames(await Friend.getFriends(user));
   }
 
+  // TODO: sync deleting friend with deleting private chat
   @Router.delete("/friends/:friend")
   async removeFriend(session: WebSessionDoc, friend: string) {
     const user = WebSession.getUser(session);
@@ -109,6 +110,7 @@ class Routes {
     return await Responses.friendRequests(await Friend.getRequests(user));
   }
 
+  // sync adding friend with making new private message chat
   @Router.post("/friend/requests/:to")
   async sendFriendRequest(session: WebSessionDoc, to: string) {
     const user = WebSession.getUser(session);
@@ -116,6 +118,7 @@ class Routes {
     return await Friend.sendRequest(user, toId);
   }
 
+  // sync deleting friend with deleting chat
   @Router.delete("/friend/requests/:to")
   async removeFriendRequest(session: WebSessionDoc, to: string) {
     const user = WebSession.getUser(session);
@@ -123,6 +126,7 @@ class Routes {
     return await Friend.removeRequest(user, toId);
   }
 
+  // TODO: sync adding friend with making new private message chat
   @Router.put("/friend/accept/:from")
   async acceptFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
@@ -130,12 +134,60 @@ class Routes {
     return await Friend.acceptRequest(fromId, user);
   }
 
+  // TODO: sync deleting friend with deleting chat
   @Router.put("/friend/reject/:from")
   async rejectFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     return await Friend.rejectRequest(fromId, user);
   }
+
+  @Router.get("/chats")
+  async getAllChats(session: WebSessionDoc) {}
+
+  @Router.get("/chats/:chat")
+  async getChatMessages(chatId: ObjectId) {
+    // return await Chat.getMessages(chatId);
+  }
+
+  @Router.post("/chats/:chat")
+  async sendChatMessage(chatId: ObjectId, message: string) {}
+
+  @Router.delete("/chats/:chat")
+  async deleteChat(chatId: ObjectId) {}
+
+  @Router.post("/chats/:chat/:collaborativeMode")
+  async startCollaborativeMode(chatId: ObjectId, session: WebSessionDoc) {}
+
+  @Router.put("/chats/:chat/:collaborativeMode")
+  async collaborate(chatId: ObjectId, message: String) {}
+
+  @Router.post("/chats/:chat/:collaborativeMode")
+  async finishCollaborativeMode(chatId: ObjectId) {}
+
+  @Router.get("/chats/:chat/:collaborativeMode")
+  async getCollabContent(chatId: ObjectId) {}
+
+  @Router.get("/galleries")
+  async getAllGalleryItems(session: WebSessionDoc) {}
+
+  @Router.get("/galleries")
+  async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {}
+
+  @Router.post("/galleries/:itemType")
+  async addItemToGallery(session: WebSessionDoc, item: String, itemType: String) {}
+
+  @Router.delete("/galleries")
+  async deleteItemFromGallery(itemId: ObjectId) {}
+
+  @Router.get("/galleries/trash")
+  async getAllTrashItems(session: WebSessionDoc) {}
+
+  @Router.get("/galleries/trash")
+  async getOneTrashItem(session: WebSessionDoc, itemId: Object) {}
+
+  @Router.delete("/galleries/trash")
+  async deleteForever(itemId: ObjectId) {}
 }
 
 export default getExpressRouter(new Routes());
