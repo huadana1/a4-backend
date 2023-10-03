@@ -110,7 +110,7 @@ class Routes {
     return await Responses.friendRequests(await Friend.getRequests(user));
   }
 
-  // sync adding friend with making new private message chat
+  // sync adding friend and making new private message chat
   @Router.post("/friend/requests/:to")
   async sendFriendRequest(session: WebSessionDoc, to: string) {
     const user = WebSession.getUser(session);
@@ -142,9 +142,11 @@ class Routes {
     return await Friend.rejectRequest(fromId, user);
   }
 
+  // get the available chats, NOT getting the message
   @Router.get("/chats")
   async getAllChats(session: WebSessionDoc) {}
 
+  // get the messages for a specific chat
   @Router.get("/chats/:chat")
   async getChatMessages(chatId: ObjectId) {
     // return await Chat.getMessages(chatId);
@@ -156,15 +158,19 @@ class Routes {
   @Router.delete("/chats/:chat")
   async deleteChat(chatId: ObjectId) {}
 
+  // turn on collaborative mode inside a private chat
   @Router.post("/chats/:chat/:collaborativeMode")
   async startCollaborativeMode(chatId: ObjectId, session: WebSessionDoc) {}
 
+  // add a message to the cumulativeMessage content for the collabroative mode in the specific chat
   @Router.put("/chats/:chat/:collaborativeMode")
   async collaborate(chatId: ObjectId, message: String) {}
 
+  // turn off collaborative mode inside the private chat and return the cumulative message stictched together
   @Router.post("/chats/:chat/:collaborativeMode")
   async finishCollaborativeMode(chatId: ObjectId) {}
 
+  // get the cumulativeMessage content (not yet stitched together)
   @Router.get("/chats/:chat/:collaborativeMode")
   async getCollabContent(chatId: ObjectId) {}
 
@@ -174,6 +180,7 @@ class Routes {
   @Router.get("/galleries")
   async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {}
 
+  // add item to specific gallery type i.e Trash, Video, Audio
   @Router.post("/galleries/:itemType")
   async addItemToGallery(session: WebSessionDoc, item: String, itemType: String) {}
 
