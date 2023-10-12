@@ -8,7 +8,7 @@ export interface GalleryDoc extends BaseDoc {
 }
 
 export interface GalleryItemsDoc extends BaseDoc {
-  item: ObjectId;
+  item: string;
   gallery: ObjectId;
   user: ObjectId;
 }
@@ -45,17 +45,17 @@ export default class GalleryConcept {
     return items;
   }
 
-  async getSingleItem(user: ObjectId, itemId: ObjectId) {
-    const item = await this.galleryItems.readOne({ user: user, item: itemId });
+  async getSingleItem(user: ObjectId, item: string) {
+    const i = await this.galleryItems.readOne({ user: user, item: item });
 
-    if (item == null) {
-      throw new NotFoundError("Could not find item {0}", itemId);
+    if (i == null) {
+      throw new NotFoundError("Could not find item {0}", i);
     }
 
-    return item;
+    return i.item;
   }
 
-  async addItem(user: ObjectId, itemType: string, item: ObjectId) {
+  async addItem(user: ObjectId, itemType: string, item: string) {
     const gallery = await this.getGalleryByName(user, itemType);
 
     let galleryId;

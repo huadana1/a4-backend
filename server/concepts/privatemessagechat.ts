@@ -124,7 +124,7 @@ export default class PrivateMessageChatConcept {
     }
 
     const _id = await this.messages.createOne({ from, to, message });
-    return { msg: "Chat message sent!", sentMsg: await this.messages.readOne({ _id }) };
+    return { msg: "Chat message sent!", sentMsgId: _id };
   }
 }
 

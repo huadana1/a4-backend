@@ -75,7 +75,7 @@ const operations: operation[] = [
     name: "Send Friend Request",
     endpoint: "/api/friend/requests/:to",
     method: "POST",
-    fields: { to: "input", message: "input" },
+    fields: { to: "input", message: "input", messageType: "input" },
   },
   {
     name: "Remove Friend Request",
@@ -111,7 +111,7 @@ const operations: operation[] = [
     name: "Send Chat Message",
     endpoint: "/api/chats/chat/:to",
     method: "POST",
-    fields: { to: "input", message: "input" },
+    fields: { to: "input", message: "input", messageType: "input" },
   },
   {
     name: "Delete Chat",
@@ -151,7 +151,7 @@ const operations: operation[] = [
   },
 
   {
-    name: "Get All Gallery Items",
+    name: "Get Items by Gallery",
     endpoint: "/api/galleries/gallery/:galleryName?",
     method: "GET",
     fields: { galleryName: "input" },

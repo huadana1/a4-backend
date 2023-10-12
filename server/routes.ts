@@ -113,13 +113,15 @@ class Routes {
 
   // sync adding friend and making new private message chat
   @Router.post("/friend/requests/:to")
-  async sendFriendRequest(session: WebSessionDoc, to: string, message: string) {
+  async sendFriendRequest(session: WebSessionDoc, to: string, message: string, messageType: string) {
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
 
     await Chat.createChat(user, toId);
+    const sentMessage = await Chat.sendMessage(user, toId, message);
+    await Gallery.addItem(user, messageType, message);
 
-    return await Promise.all([Chat.sendMessage(user, toId, message), Friend.sendRequest(user, toId)]);
+    return { msg: sentMessage.msg + (await Friend.sendRequest(user, toId)).msg };
   }
 
   // sync deleting friend with deleting chat
@@ -166,10 +168,13 @@ class Routes {
   }
 
   @Router.post("/chats/chat/:to")
-  async sendChatMessage(session: WebSessionDoc, to: string, message: string) {
+  async sendChatMessage(session: WebSessionDoc, to: string, message: string, messageType: string) {
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
-    return await Chat.sendMessage(user, toId, message);
+    const sentMessage = await Chat.sendMessage(user, toId, message);
+    await Gallery.addItem(user, messageType, message);
+
+    return sentMessage.msg;
   }
 
   @Router.delete("/chats/:chatId")
@@ -194,13 +199,13 @@ class Routes {
   async getCollabContent(chatId: ObjectId) {}
 
   @Router.get("/galleries/gallery/items/:itemId?")
-  async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {
-    if (itemId == null) {
+  async getOneGalleryItem(session: WebSessionDoc, item: string) {
+    if (item == null) {
       throw new BadValuesError("ItemId cannot be empty!");
     }
 
     const user = WebSession.getUser(session);
-    return await Gallery.getSingleItem(user, itemId);
+    return await Gallery.getSingleItem(user, item);
   }
 
   @Router.get("/galleries/gallery/:galleryName?")
