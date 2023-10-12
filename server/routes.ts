@@ -147,53 +147,53 @@ class Routes {
   async getAllChats(session: WebSessionDoc) {}
 
   // get the messages for a specific chat
-  @Router.get("/chats/:chat")
+  @Router.get("/chats/:chatId")
   async getChatMessages(chatId: ObjectId) {
     // return await Chat.getMessages(chatId);
   }
 
-  @Router.post("/chats/:chat")
+  @Router.post("/chats/:chatId")
   async sendChatMessage(chatId: ObjectId, message: string) {}
 
-  @Router.delete("/chats/:chat")
+  @Router.delete("/chats/:chatId")
   async deleteChat(chatId: ObjectId) {}
 
-  // turn on collaborative mode inside a private chat
-  @Router.post("/chats/:chat/:collaborativeMode")
+  // turn on collaborative mode for a private chat
+  @Router.post("/collaborativeMode/:chatId")
   async startCollaborativeMode(chatId: ObjectId, session: WebSessionDoc) {}
 
   // add a message to the cumulativeMessage content for the collabroative mode in the specific chat
-  @Router.put("/chats/:chat/:collaborativeMode")
+  @Router.patch("/collaborativeMode/:chatId")
   async collaborate(chatId: ObjectId, message: String) {}
 
   // turn off collaborative mode inside the private chat and return the cumulative message stictched together
-  @Router.post("/chats/:chat/:collaborativeMode")
+  @Router.delete("/collaborativeMode/:chatId")
   async finishCollaborativeMode(chatId: ObjectId) {}
 
   // get the cumulativeMessage content (not yet stitched together)
-  @Router.get("/chats/:chat/:collaborativeMode")
+  @Router.get("/collaborativeMode/:chatId")
   async getCollabContent(chatId: ObjectId) {}
 
   @Router.get("/galleries")
   async getAllGalleryItems(session: WebSessionDoc) {}
 
-  @Router.get("/galleries")
+  @Router.get("/galleries/:gallery/:itemId")
   async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {}
 
   // add item to specific gallery type i.e Trash, Video, Audio
-  @Router.post("/galleries/:itemType")
+  @Router.post("/galleries/:gallery/:itemType")
   async addItemToGallery(session: WebSessionDoc, item: String, itemType: String) {}
 
-  @Router.delete("/galleries")
+  @Router.delete("/galleries/:gallery/:itemId")
   async deleteItemFromGallery(itemId: ObjectId) {}
 
   @Router.get("/galleries/trash")
   async getAllTrashItems(session: WebSessionDoc) {}
 
-  @Router.get("/galleries/trash")
+  @Router.get("/galleries/trash/:itemId")
   async getOneTrashItem(session: WebSessionDoc, itemId: Object) {}
 
-  @Router.delete("/galleries/trash")
+  @Router.delete("/galleries/trash/:itemId")
   async deleteForever(itemId: ObjectId) {}
 }
 
