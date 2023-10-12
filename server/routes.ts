@@ -193,14 +193,22 @@ class Routes {
   @Router.get("/collaborativeMode/:chatId")
   async getCollabContent(chatId: ObjectId) {}
 
-  @Router.get("/galleries/gallery/:itemId?")
+  @Router.get("/galleries/gallery/items/:itemId?")
   async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {
+    if (itemId == null) {
+      throw new BadValuesError("ItemId cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     return await Gallery.getSingleItem(user, itemId);
   }
 
-  @Router.get("/galleries/:gallery?")
+  @Router.get("/galleries/gallery/:galleryName?")
   async getAllGalleryItems(session: WebSessionDoc, galleryName: string) {
+    if (galleryName == null) {
+      throw new BadValuesError("GalleryName cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     return await Gallery.getGalleryItemsByGalleryName(user, galleryName);
   }

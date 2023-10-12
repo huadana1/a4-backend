@@ -144,28 +144,23 @@ const operations: operation[] = [
     fields: { chatId: "input" },
   },
   {
-    name: "View Galleries",
-    endpoint: "/api/galleries",
+    name: "Get Single Gallery Item",
+    endpoint: "/api/galleries/gallery/items/:itemId?",
+    method: "GET",
+    fields: { itemId: "input" },
+  },
+
+  {
+    name: "Get All Gallery Items",
+    endpoint: "/api/galleries/gallery/:galleryName?",
+    method: "GET",
+    fields: { galleryName: "input" },
+  },
+  {
+    name: "Get User's Galleries",
+    endpoint: "/api/galleries/",
     method: "GET",
     fields: {},
-  },
-  {
-    name: "Get Single Gallery Item",
-    endpoint: "/api/galleries/:gallery/:itemId",
-    method: "GET",
-    fields: { gallery: "input", itemId: "input" },
-  },
-  {
-    name: "Add Item to Gallery",
-    endpoint: "/api/galleries/:gallery/:item",
-    method: "POST",
-    fields: { gallery: "input", item: "input" },
-  },
-  {
-    name: "Delete Item from Gallery",
-    endpoint: "/api/galleries/:gallery/:itemId",
-    method: "DELETE",
-    fields: { gallery: "input", itemId: "input" },
   },
   {
     name: "Get Trash",
