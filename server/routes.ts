@@ -2,7 +2,8 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Friend, Post, User, WebSession } from "./app";
+import { Chat, Friend, Post, User, WebSession } from "./app";
+import { BadValuesError } from "./concepts/errors";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -112,10 +113,13 @@ class Routes {
 
   // sync adding friend and making new private message chat
   @Router.post("/friend/requests/:to")
-  async sendFriendRequest(session: WebSessionDoc, to: string) {
+  async sendFriendRequest(session: WebSessionDoc, to: string, message: string) {
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
-    return await Friend.sendRequest(user, toId);
+
+    await Chat.createChat(user, toId);
+
+    return await Promise.all([Chat.sendMessage(user, toId, message), Friend.sendRequest(user, toId)]);
   }
 
   // sync deleting friend with deleting chat
@@ -142,21 +146,36 @@ class Routes {
     return await Friend.rejectRequest(fromId, user);
   }
 
-  // get the available chats, NOT getting the message
-  @Router.get("/chats")
-  async getAllChats(session: WebSessionDoc) {}
+  // get chat messages between logged in user and user2
+  @Router.get("/chats/chat/:username?")
+  async getChatMessages(session: WebSessionDoc, username: string) {
+    if (username == null) {
+      throw new BadValuesError("Username cannot be empty!");
+    }
 
-  // get the messages for a specific chat
-  @Router.get("/chats/:chatId")
-  async getChatMessages(chatId: ObjectId) {
-    // return await Chat.getMessages(chatId);
+    const user = WebSession.getUser(session);
+    const u2Id = (await User.getUserByUsername(username))._id;
+    return await Chat.getAllMessages(user, u2Id);
   }
 
-  @Router.post("/chats/:chatId")
-  async sendChatMessage(chatId: ObjectId, message: string) {}
+  // get the available chats, NOT getting the message
+  @Router.get("/chats")
+  async getAllChats(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Chat.getAllChats(user);
+  }
+
+  @Router.post("/chats/chat/:to")
+  async sendChatMessage(session: WebSessionDoc, to: string, message: string) {
+    const user = WebSession.getUser(session);
+    const toId = (await User.getUserByUsername(to))._id;
+    return await Chat.sendMessage(user, toId, message);
+  }
 
   @Router.delete("/chats/:chatId")
-  async deleteChat(chatId: ObjectId) {}
+  async deleteChat(chatId: ObjectId) {
+    return await Chat.deleteChat(chatId);
+  }
 
   // turn on collaborative mode for a private chat
   @Router.post("/collaborativeMode/:chatId")
@@ -181,7 +200,7 @@ class Routes {
   async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {}
 
   // add item to specific gallery type i.e Trash, Video, Audio
-  @Router.post("/galleries/:gallery/:itemType")
+  @Router.post("/galleries/:gallery/")
   async addItemToGallery(session: WebSessionDoc, item: String, itemType: String) {}
 
   @Router.delete("/galleries/:gallery/:itemId")

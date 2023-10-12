@@ -35,12 +35,12 @@ const operations: operation[] = [
     method: "POST",
     fields: {},
   },
-  {
-    name: "Update User",
-    endpoint: "/api/users",
-    method: "PATCH",
-    fields: { update: { username: "input", password: "input" } },
-  },
+  // {
+  //   name: "Update User",
+  //   endpoint: "/api/users",
+  //   method: "PATCH",
+  //   fields: { update: { username: "input", password: "input" } },
+  // },
   {
     name: "Delete User",
     endpoint: "/api/users",
@@ -54,6 +54,140 @@ const operations: operation[] = [
     fields: { username: "input" },
   },
   {
+    name: "Get Friends",
+    endpoint: "/api/friends/",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Delete Friend",
+    endpoint: "/api/friends/:friend",
+    method: "DELETE",
+    fields: { friend: "input" },
+  },
+  {
+    name: "Get Friend Requests",
+    endpoint: "/api/friend/requests",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Send Friend Request",
+    endpoint: "/api/friend/requests/:to",
+    method: "POST",
+    fields: { to: "input", message: "input" },
+  },
+  {
+    name: "Remove Friend Request",
+    endpoint: "/api/friend/requests/:to",
+    method: "DELETE",
+    fields: { to: "input" },
+  },
+  {
+    name: "Accept Friend Request",
+    endpoint: "/api/friend/accept/:from",
+    method: "PUT",
+    fields: { from: "input" },
+  },
+  {
+    name: "Reject Friend Request",
+    endpoint: "/api/friend/reject/:from",
+    method: "PUT",
+    fields: { from: "input" },
+  },
+  {
+    name: "Get Chat Messages",
+    endpoint: "/api/chats/chat/:username?",
+    method: "GET",
+    fields: { username: "input" },
+  },
+  {
+    name: "Get Chats",
+    endpoint: "/api/chats/",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Send Chat Message",
+    endpoint: "/api/chats/chat/:to",
+    method: "POST",
+    fields: { to: "input", message: "input" },
+  },
+  {
+    name: "Delete Chat",
+    endpoint: "/api/chats/:chatId",
+    method: "DELETE",
+    fields: { chatId: "input" },
+  },
+  {
+    name: "Start Collaboration",
+    endpoint: "/api/collaborativeMode/:chatId",
+    method: "POST",
+    fields: { chatId: "input" },
+  },
+  {
+    name: "Collaborate",
+    endpoint: "/api/collaborativeMode/:chatId",
+    method: "PATCH",
+    fields: { chatId: "input" },
+  },
+  {
+    name: "Finish Collaboration",
+    endpoint: "/api/collaborativeMode/:chatId",
+    method: "DELETE",
+    fields: { chatId: "input" },
+  },
+  {
+    name: "View Collaboration",
+    endpoint: "/api/collaborativeMode/:chatId",
+    method: "GET",
+    fields: { chatId: "input" },
+  },
+  {
+    name: "View Galleries",
+    endpoint: "/api/galleries",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Get Single Gallery Item",
+    endpoint: "/api/galleries/:gallery/:itemId",
+    method: "GET",
+    fields: { gallery: "input", itemId: "input" },
+  },
+  {
+    name: "Add Item to Gallery",
+    endpoint: "/api/galleries/:gallery/:item",
+    method: "POST",
+    fields: { gallery: "input", item: "input" },
+  },
+  {
+    name: "Delete Item from Gallery",
+    endpoint: "/api/galleries/:gallery/:itemId",
+    method: "DELETE",
+    fields: { gallery: "input", itemId: "input" },
+  },
+  {
+    name: "Get Trash",
+    endpoint: "/api/galleries/trash",
+    method: "GET",
+    fields: {},
+  },
+  {
+    name: "Get Single Item from Trash",
+    endpoint: "/api/galleries/trash/:itemId",
+    method: "GET",
+    fields: { itemId: "input" },
+  },
+  {
+    name: "Delete Item from Trash",
+    endpoint: "/api/galleries/trash/:itemId",
+    method: "GET",
+    fields: { itemId: "input" },
+  },
+
+  // comment out posts because we don't need it for app
+  /* {
     name: "Get Posts (empty for all)",
     endpoint: "/api/posts",
     method: "GET",
@@ -76,7 +210,7 @@ const operations: operation[] = [
     endpoint: "/api/posts/:id",
     method: "DELETE",
     fields: { id: "input" },
-  },
+  },*/
 ];
 
 // Do not edit below here.
