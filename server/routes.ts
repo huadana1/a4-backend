@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Chat, Friend, Gallery, Post, User, WebSession } from "./app";
+import { Chat, Friend, Gallery, Post, Trash, User, WebSession } from "./app";
 import { BadValuesError } from "./concepts/errors";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
@@ -224,14 +224,41 @@ class Routes {
     return await Gallery.getAllUserGalleries(user);
   }
 
-  @Router.get("/trash/:itemId?")
-  async getOneTrashItem(session: WebSessionDoc, itemId: Object) {}
+  @Router.get("/trash/item/:itemId?")
+  async getOneTrashItem(session: WebSessionDoc, itemId: ObjectId) {
+    if (itemId == null) {
+      throw new BadValuesError("ItemId cannot be empty!");
+    }
+
+    const user = WebSession.getUser(session);
+    return await Trash.getSingleItem(user, itemId);
+  }
 
   @Router.get("/trash")
-  async getAllTrashItems(session: WebSessionDoc) {}
+  async getAllTrashItems(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Trash.getAllItems(user);
+  }
 
-  @Router.delete("/trash/:itemId")
-  async deleteForever(itemId: ObjectId) {}
+  @Router.delete("/trash/item/:itemId?")
+  async deleteForever(session: WebSessionDoc, itemId: ObjectId) {
+    if (itemId == null) {
+      throw new BadValuesError("ItemId cannot be empty!");
+    }
+
+    const user = WebSession.getUser(session);
+    return await Trash.deleteForver(user, itemId);
+  }
+
+  @Router.post("/trash")
+  async addItem(session: WebSessionDoc, item: string) {
+    if (item == null) {
+      throw new BadValuesError("Item cannot be empty!");
+    }
+
+    const user = WebSession.getUser(session);
+    return await Trash.addItem(user, item);
+  }
 }
 
 export default getExpressRouter(new Routes());

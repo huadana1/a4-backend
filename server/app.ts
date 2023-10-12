@@ -3,6 +3,7 @@ import FriendConcept from "./concepts/friend";
 import GalleryConcept from "./concepts/gallery";
 import PostConcept from "./concepts/post";
 import PrivateMessageChatConcept from "./concepts/privatemessagechat";
+import TrashConcept from "./concepts/trash";
 import UserConcept from "./concepts/user";
 import WebSessionConcept from "./concepts/websession";
 
@@ -14,3 +15,4 @@ export const Friend = new FriendConcept();
 export const Chat = new PrivateMessageChatConcept();
 export const CollaborativeMode = new CollaborativeModeConcept();
 export const Gallery = new GalleryConcept();
+export const Trash = new TrashConcept();

@@ -163,22 +163,28 @@ const operations: operation[] = [
     fields: {},
   },
   {
+    name: "Get Single Item from Trash",
+    endpoint: "/api/trash/item/:itemId?",
+    method: "GET",
+    fields: { itemId: "input" },
+  },
+  {
     name: "Get Trash",
-    endpoint: "/api/galleries/trash",
+    endpoint: "/api/trash",
     method: "GET",
     fields: {},
   },
   {
-    name: "Get Single Item from Trash",
-    endpoint: "/api/galleries/trash/:itemId",
-    method: "GET",
+    name: "Delete Item from Trash",
+    endpoint: "/api/trash/item/:itemId?",
+    method: "DELETE",
     fields: { itemId: "input" },
   },
   {
-    name: "Delete Item from Trash",
-    endpoint: "/api/galleries/trash/:itemId",
-    method: "GET",
-    fields: { itemId: "input" },
+    name: "Add Item to Trash",
+    endpoint: "/api/trash",
+    method: "POST",
+    fields: { item: "input" },
   },
 
   // comment out posts because we don't need it for app
