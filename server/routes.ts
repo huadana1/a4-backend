@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Chat, Friend, Post, User, WebSession } from "./app";
+import { Chat, Friend, Gallery, Post, User, WebSession } from "./app";
 import { BadValuesError } from "./concepts/errors";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
@@ -193,26 +193,31 @@ class Routes {
   @Router.get("/collaborativeMode/:chatId")
   async getCollabContent(chatId: ObjectId) {}
 
+  @Router.get("/galleries/gallery/:itemId?")
+  async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {
+    const user = WebSession.getUser(session);
+    return await Gallery.getSingleItem(user, itemId);
+  }
+
+  @Router.get("/galleries/:gallery?")
+  async getAllGalleryItems(session: WebSessionDoc, galleryName: string) {
+    const user = WebSession.getUser(session);
+    return await Gallery.getGalleryItemsByGalleryName(user, galleryName);
+  }
+
   @Router.get("/galleries")
-  async getAllGalleryItems(session: WebSessionDoc) {}
+  async getAllUserGalleries(session: WebSessionDoc) {
+    const user = WebSession.getUser(session);
+    return await Gallery.getAllUserGalleries(user);
+  }
 
-  @Router.get("/galleries/:gallery/:itemId")
-  async getOneGalleryItem(session: WebSessionDoc, itemId: ObjectId) {}
-
-  // add item to specific gallery type i.e Trash, Video, Audio
-  @Router.post("/galleries/:gallery/")
-  async addItemToGallery(session: WebSessionDoc, item: String, itemType: String) {}
-
-  @Router.delete("/galleries/:gallery/:itemId")
-  async deleteItemFromGallery(itemId: ObjectId) {}
-
-  @Router.get("/galleries/trash")
-  async getAllTrashItems(session: WebSessionDoc) {}
-
-  @Router.get("/galleries/trash/:itemId")
+  @Router.get("/trash/:itemId?")
   async getOneTrashItem(session: WebSessionDoc, itemId: Object) {}
 
-  @Router.delete("/galleries/trash/:itemId")
+  @Router.get("/trash")
+  async getAllTrashItems(session: WebSessionDoc) {}
+
+  @Router.delete("/trash/:itemId")
   async deleteForever(itemId: ObjectId) {}
 }
 
