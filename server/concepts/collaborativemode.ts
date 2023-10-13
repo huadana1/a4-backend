@@ -70,6 +70,6 @@ export default class CollaborativeModeConcept {
     await this.collaborativeModeContents.updateOne({ collabModeId: collabMode._id }, { cumulativeMessage: update });
     await this.collaborativeModes.updateOne(collabMode, { turn: user2 });
 
-    return { msg: "Succesfully collabrated!" };
+    return await this.getCollabContent(user1, user2);
   }
 }
