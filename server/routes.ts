@@ -60,6 +60,10 @@ class Routes {
   // sync deleting friend with deleting private chat
   @Router.delete("/friends/:friend")
   async removeFriend(session: WebSessionDoc, friend: string) {
+    if (friend == null) {
+      throw new BadValuesError("Friend cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     const friendId = (await User.getUserByUsername(friend))._id;
     await Chat.deleteChat(user, friendId);
@@ -75,6 +79,10 @@ class Routes {
   // sync adding friend and making new private message chat
   @Router.post("/friend/requests/:to")
   async sendFriendRequest(session: WebSessionDoc, to: string, message: string, messageType: string) {
+    if (to == null || message == null || messageType == null) {
+      throw new BadValuesError("All fields must be filled out!");
+    }
+
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
 
@@ -89,6 +97,10 @@ class Routes {
   // can't view messages or send messages in chat until friend request is accepted
   @Router.put("/friend/accept/:from")
   async acceptFriendRequest(session: WebSessionDoc, from: string) {
+    if (from == null) {
+      throw new BadValuesError("From cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     return await Friend.acceptRequest(fromId, user);
@@ -97,6 +109,10 @@ class Routes {
   // sync rejecting friend request with deleting chat
   @Router.put("/friend/reject/:from")
   async rejectFriendRequest(session: WebSessionDoc, from: string) {
+    if (from == null) {
+      throw new BadValuesError("From cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     await Chat.deleteChat(user, fromId);
@@ -129,6 +145,10 @@ class Routes {
 
   @Router.post("/chats/chat/:to")
   async sendChatMessage(session: WebSessionDoc, to: string, message: string, messageType: string) {
+    if (to == null || message == null || messageType == null) {
+      throw new BadValuesError("All fields must be filled out!");
+    }
+
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
 
@@ -145,6 +165,10 @@ class Routes {
   // turn on collaborative mode for a private chat
   @Router.post("/collaborativeModes")
   async startCollaborativeMode(session: WebSessionDoc, username: string, message: string) {
+    if (username == null || message == null) {
+      throw new BadValuesError("All fields must be filled out!");
+    }
+
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
 
@@ -159,6 +183,10 @@ class Routes {
   // add a message to the cumulativeMessage content for the collabroative mode in the specific chat
   @Router.patch("/collaborativeModes")
   async collaborate(session: WebSessionDoc, username: string, message: string) {
+    if (username == null || message == null) {
+      throw new BadValuesError("All fields must be filled out!");
+    }
+
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
 
@@ -169,9 +197,12 @@ class Routes {
     return await CollaborativeMode.collab(user, user2, message);
   }
 
-  // turn off collaborative mode inside the private chat and return the cumulative message stictched together
   @Router.delete("/collaborativeModes")
   async finishCollaborativeMode(session: WebSessionDoc, username: string) {
+    if (username == null) {
+      throw new BadValuesError("Username cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
 
@@ -185,6 +216,10 @@ class Routes {
   // get the cumulativeMessage content
   @Router.get("/collaborativeMode/content")
   async getCollabContent(session: WebSessionDoc, username: string) {
+    if (username == null) {
+      throw new BadValuesError("Username cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
 
@@ -197,6 +232,10 @@ class Routes {
 
   @Router.get("/collaborativeMode")
   async getCollabMode(session: WebSessionDoc, username: string) {
+    if (username == null) {
+      throw new BadValuesError("Username cannot be empty!");
+    }
+
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
 
