@@ -247,13 +247,13 @@ class Routes {
   }
 
   @Router.get("/galleries/gallery/items/:itemId?")
-  async getOneGalleryItem(session: WebSessionDoc, item: string) {
-    if (item == null) {
+  async getOneGalleryItem(session: WebSessionDoc, itemId: string) {
+    if (itemId == null) {
       throw new BadValuesError("ItemId cannot be empty!");
     }
 
     const user = WebSession.getUser(session);
-    return await Gallery.getSingleItem(user, item);
+    return await Gallery.getSingleItem(user, itemId);
   }
 
   @Router.get("/galleries/gallery/:galleryName?")
@@ -270,6 +270,16 @@ class Routes {
   async getAllUserGalleries(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     return await Gallery.getAllUserGalleries(user);
+  }
+
+  @Router.delete("/galleries/gallery/items")
+  async deleteGalleryItem(session: WebSessionDoc, itemId: string) {
+    if (itemId == null) {
+      throw new BadValuesError("ItemId cannot be empty!");
+    }
+
+    const user = WebSession.getUser(session);
+    return await Gallery.deleteItem(user, itemId);
   }
 
   @Router.get("/trash/item/:itemId?")

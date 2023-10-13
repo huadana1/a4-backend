@@ -95,12 +95,6 @@ const operations: operation[] = [
     method: "POST",
     fields: { to: "input", message: "input", messageType: "input" },
   },
-  // {
-  //   name: "Delete Chat",
-  //   endpoint: "/api/chats/:chatId",
-  //   method: "DELETE",
-  //   fields: { chatId: "input" },
-  // },
   {
     name: "Start Collaboration",
     endpoint: "/api/collaborativeModes",
@@ -149,6 +143,12 @@ const operations: operation[] = [
     endpoint: "/api/galleries/",
     method: "GET",
     fields: {},
+  },
+  {
+    name: "Delete Item from Gallery",
+    endpoint: "/api/galleries/gallery/items",
+    method: "DELETE",
+    fields: { itemId: "input" },
   },
   {
     name: "Get Single Item from Trash",

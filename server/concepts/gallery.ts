@@ -45,11 +45,11 @@ export default class GalleryConcept {
     return items;
   }
 
-  async getSingleItem(user: ObjectId, item: string) {
-    const i = await this.galleryItems.readOne({ user: user, item: item });
+  async getSingleItem(user: ObjectId, itemId: string) {
+    const i = await this.galleryItems.readOne({ user: user, _id: new ObjectId(itemId) });
 
     if (i == null) {
-      throw new NotFoundError("Could not find item {0}", i);
+      throw new NotFoundError("Could not find item {0}", itemId);
     }
 
     return i.item;
@@ -67,5 +67,15 @@ export default class GalleryConcept {
     }
 
     return { msg: "Item added to gallery!", item: await this.galleryItems.createOne({ gallery: galleryId, user: user, item: item }) };
+  }
+
+  async deleteItem(user: ObjectId, id: string) {
+    const i = await this.galleryItems.readOne({ user: user, _id: new ObjectId(id) });
+
+    if (i == null) {
+      throw new NotFoundError("Could not find item {0}", id);
+    }
+
+    return await this.galleryItems.deleteOne(i);
   }
 }
