@@ -35,18 +35,6 @@ const operations: operation[] = [
     method: "POST",
     fields: {},
   },
-  // {
-  //   name: "Update User",
-  //   endpoint: "/api/users",
-  //   method: "PATCH",
-  //   fields: { update: { username: "input", password: "input" } },
-  // },
-  {
-    name: "Delete User",
-    endpoint: "/api/users",
-    method: "DELETE",
-    fields: {},
-  },
   {
     name: "Get Users (empty for all)",
     endpoint: "/api/users/:username",
@@ -107,12 +95,12 @@ const operations: operation[] = [
     method: "POST",
     fields: { to: "input", message: "input", messageType: "input" },
   },
-  {
-    name: "Delete Chat",
-    endpoint: "/api/chats/:chatId",
-    method: "DELETE",
-    fields: { chatId: "input" },
-  },
+  // {
+  //   name: "Delete Chat",
+  //   endpoint: "/api/chats/:chatId",
+  //   method: "DELETE",
+  //   fields: { chatId: "input" },
+  // },
   {
     name: "Start Collaboration",
     endpoint: "/api/collaborativeModes",

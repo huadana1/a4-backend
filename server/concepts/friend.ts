@@ -69,6 +69,19 @@ export default class FriendConcept {
     return friendships.map((friendship) => (friendship.user1.toString() === user.toString() ? friendship.user2 : friendship.user1));
   }
 
+  async isFriends(u1: ObjectId, u2: ObjectId) {
+    const friendship = await this.friends.readOne({
+      $or: [
+        { user1: u1, user2: u2 },
+        { user1: u2, user2: u1 },
+      ],
+    });
+    if (friendship !== null || u1.toString() === u2.toString()) {
+      return true;
+    }
+    return false;
+  }
+
   private async addFriend(user1: ObjectId, user2: ObjectId) {
     void this.friends.createOne({ user1, user2 });
   }

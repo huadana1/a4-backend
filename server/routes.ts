@@ -2,9 +2,9 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Chat, CollaborativeMode, Friend, Gallery, Post, Trash, User, WebSession } from "./app";
+import { Chat, CollaborativeMode, Friend, Gallery, Trash, User, WebSession } from "./app";
 import { BadValuesError } from "./concepts/errors";
-import { PostDoc, PostOptions } from "./concepts/post";
+import { FriendNotFoundError } from "./concepts/friend";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -38,13 +38,6 @@ class Routes {
     return await User.update(user, update);
   }
 
-  @Router.delete("/users")
-  async deleteUser(session: WebSessionDoc) {
-    const user = WebSession.getUser(session);
-    WebSession.end(session);
-    return await User.delete(user);
-  }
-
   @Router.post("/login")
   async logIn(session: WebSessionDoc, username: string, password: string) {
     const u = await User.authenticate(username, password);
@@ -56,39 +49,6 @@ class Routes {
   async logOut(session: WebSessionDoc) {
     WebSession.end(session);
     return { msg: "Logged out!" };
-  }
-
-  @Router.get("/posts")
-  async getPosts(author?: string) {
-    let posts;
-    if (author) {
-      const id = (await User.getUserByUsername(author))._id;
-      posts = await Post.getByAuthor(id);
-    } else {
-      posts = await Post.getPosts({});
-    }
-    return Responses.posts(posts);
-  }
-
-  @Router.post("/posts")
-  async createPost(session: WebSessionDoc, content: string, options?: PostOptions) {
-    const user = WebSession.getUser(session);
-    const created = await Post.create(user, content, options);
-    return { msg: created.msg, post: await Responses.post(created.post) };
-  }
-
-  @Router.patch("/posts/:_id")
-  async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<PostDoc>) {
-    const user = WebSession.getUser(session);
-    await Post.isAuthor(user, _id);
-    return await Post.update(_id, update);
-  }
-
-  @Router.delete("/posts/:_id")
-  async deletePost(session: WebSessionDoc, _id: ObjectId) {
-    const user = WebSession.getUser(session);
-    await Post.isAuthor(user, _id);
-    return Post.delete(_id);
   }
 
   @Router.get("/friends")
@@ -124,14 +84,6 @@ class Routes {
     return { msg: sentMessage.msg + (await Friend.sendRequest(user, toId)).msg };
   }
 
-  // sync deleting friend with deleting chat
-  @Router.delete("/friend/requests/:to")
-  async removeFriendRequest(session: WebSessionDoc, to: string) {
-    const user = WebSession.getUser(session);
-    const toId = (await User.getUserByUsername(to))._id;
-    return await Friend.removeRequest(user, toId);
-  }
-
   // TODO: sync adding friend with making new private message chat
   @Router.put("/friend/accept/:from")
   async acceptFriendRequest(session: WebSessionDoc, from: string) {
@@ -157,6 +109,11 @@ class Routes {
 
     const user = WebSession.getUser(session);
     const u2Id = (await User.getUserByUsername(username))._id;
+
+    if (!(await Friend.isFriends(user, u2Id))) {
+      throw new FriendNotFoundError(user, u2Id);
+    }
+
     return await Chat.getAllMessages(user, u2Id);
   }
 
@@ -171,22 +128,32 @@ class Routes {
   async sendChatMessage(session: WebSessionDoc, to: string, message: string, messageType: string) {
     const user = WebSession.getUser(session);
     const toId = (await User.getUserByUsername(to))._id;
+
+    if (!(await Friend.isFriends(user, toId))) {
+      throw new FriendNotFoundError(user, toId);
+    }
+
     const sentMessage = await Chat.sendMessage(user, toId, message);
     await Gallery.addItem(user, messageType, message);
 
     return sentMessage.msg;
   }
 
-  @Router.delete("/chats/:chatId")
-  async deleteChat(chatId: ObjectId) {
-    return await Chat.deleteChat(chatId);
-  }
+  // @Router.delete("/chats/:chatId")
+  // async deleteChat(chatId: ObjectId) {
+  //   return await Chat.deleteChat(chatId);
+  // }
 
   // turn on collaborative mode for a private chat
   @Router.post("/collaborativeModes")
   async startCollaborativeMode(session: WebSessionDoc, username: string, message: string) {
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
+
+    if (!(await Friend.isFriends(user, user2))) {
+      throw new FriendNotFoundError(user, user2);
+    }
+
     await CollaborativeMode.startCollab(user, user2);
     return await CollaborativeMode.collab(user, user2, message);
   }
@@ -196,6 +163,11 @@ class Routes {
   async collaborate(session: WebSessionDoc, username: string, message: string) {
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
+
+    if (!(await Friend.isFriends(user, user2))) {
+      throw new FriendNotFoundError(user, user2);
+    }
+
     return await CollaborativeMode.collab(user, user2, message);
   }
 
@@ -204,6 +176,11 @@ class Routes {
   async finishCollaborativeMode(session: WebSessionDoc, username: string) {
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
+
+    if (!(await Friend.isFriends(user, user2))) {
+      throw new FriendNotFoundError(user, user2);
+    }
+
     return await CollaborativeMode.finishCollab(user, user2);
   }
 
@@ -212,6 +189,11 @@ class Routes {
   async getCollabContent(session: WebSessionDoc, username: string) {
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
+
+    if (!(await Friend.isFriends(user, user2))) {
+      throw new FriendNotFoundError(user, user2);
+    }
+
     return await CollaborativeMode.getCollabContent(user, user2);
   }
 
@@ -219,6 +201,11 @@ class Routes {
   async getCollabMode(session: WebSessionDoc, username: string) {
     const user = WebSession.getUser(session);
     const user2 = (await User.getUserByUsername(username))._id;
+
+    if (!(await Friend.isFriends(user, user2))) {
+      throw new FriendNotFoundError(user, user2);
+    }
+
     return await CollaborativeMode.getCollabMode(user, user2);
   }
 
