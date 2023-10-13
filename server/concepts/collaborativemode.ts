@@ -2,7 +2,8 @@ import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 
 export interface CollaborativeModeChatStatusDoc extends BaseDoc {
-  chatId: ObjectId;
+  user1: ObjectId;
+  user2: ObjectId;
   status: "on" | "off";
   turn: ObjectId;
 }
@@ -23,8 +24,8 @@ export default class CollaborativeModeConcept {
     return content;
   }
 
-  async startCollab(chatId: ObjectId, userId: ObjectId) {
-    const _id = await this.collaborativeModeChatStatuses.createOne({ chatId, status: "on", turn: userId });
+  async startCollab(user1: ObjectId, user2: ObjectId) {
+    const _id = await this.collaborativeModeChatStatuses.createOne({ user1: user1, user2: user2, status: "on", turn: user1 });
     return { msg: "Collaborative Mode successfully turned on!", post: await this.collaborativeModeChatStatuses.readOne({ _id }) };
   }
 
