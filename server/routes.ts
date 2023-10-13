@@ -57,11 +57,12 @@ class Routes {
     return await User.idsToUsernames(await Friend.getFriends(user));
   }
 
-  // TODO: sync deleting friend with deleting private chat
+  // sync deleting friend with deleting private chat
   @Router.delete("/friends/:friend")
   async removeFriend(session: WebSessionDoc, friend: string) {
     const user = WebSession.getUser(session);
     const friendId = (await User.getUserByUsername(friend))._id;
+    await Chat.deleteChat(user, friendId);
     return await Friend.removeFriend(user, friendId);
   }
 
@@ -84,7 +85,8 @@ class Routes {
     return { msg: sentMessage.msg + (await Friend.sendRequest(user, toId)).msg };
   }
 
-  // TODO: sync adding friend with making new private message chat
+  // don't need to create private chat when accepting a friend request because chat was already created when request was sent
+  // can't view messages or send messages in chat until friend request is accepted
   @Router.put("/friend/accept/:from")
   async acceptFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
@@ -92,11 +94,12 @@ class Routes {
     return await Friend.acceptRequest(fromId, user);
   }
 
-  // TODO: sync deleting friend with deleting chat
+  // sync rejecting friend request with deleting chat
   @Router.put("/friend/reject/:from")
   async rejectFriendRequest(session: WebSessionDoc, from: string) {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
+    await Chat.deleteChat(user, fromId);
     return await Friend.rejectRequest(fromId, user);
   }
 
@@ -138,11 +141,6 @@ class Routes {
 
     return sentMessage.msg;
   }
-
-  // @Router.delete("/chats/:chatId")
-  // async deleteChat(chatId: ObjectId) {
-  //   return await Chat.deleteChat(chatId);
-  // }
 
   // turn on collaborative mode for a private chat
   @Router.post("/collaborativeModes")

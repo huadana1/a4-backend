@@ -51,7 +51,7 @@ export default class PrivateMessageChatConcept {
    * @param user2 - user who is chatting with user1
    * @returns id of chat between user1 and user2 or throws error if chat not found
    */
-  async getChatId(user1: ObjectId, user2: ObjectId) {
+  private async getChatId(user1: ObjectId, user2: ObjectId) {
     const chat = await this.chats.readOne({
       $or: [
         { user1: user1, user2: user2 },
@@ -102,7 +102,8 @@ export default class PrivateMessageChatConcept {
    *
    * @param chat - id of chat to delete
    */
-  async deleteChat(chatId: ObjectId) {
+  async deleteChat(user1: ObjectId, user2: ObjectId) {
+    const chatId = await this.getChatId(user1, user2);
     await this.chats.deleteOne({ _id: chatId });
     return { msg: "Chat deleted successfully!" };
   }
