@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotFoundError } from "./errors";
+import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface CollaborativeModeDoc extends BaseDoc {
   user1: ObjectId;
@@ -56,6 +56,9 @@ export default class CollaborativeModeConcept {
     const collabMode = await this.getCollabMode(user1, user2);
     let priorContent = await this.getCollabContent(user1, user2);
 
+    if (collabMode.turn.toString() !== user1.toString()) {
+      throw new NotAllowedError("It is not your turn to collaborate!");
+    }
     if (priorContent == null) {
       this.collaborativeModeContents.createOne({ collabModeId: collabMode._id, cumulativeMessage: [] });
       priorContent = await this.getCollabContent(user1, user2);
@@ -64,7 +67,7 @@ export default class CollaborativeModeConcept {
     const update = priorContent?.cumulativeMessage || [];
     update.push(message);
 
-    const _id = await this.collaborativeModeContents.updateOne({ collabModeId: collabMode._id }, { cumulativeMessage: update });
+    await this.collaborativeModeContents.updateOne({ collabModeId: collabMode._id }, { cumulativeMessage: update });
     await this.collaborativeModes.updateOne(collabMode, { turn: user2 });
 
     return { msg: "Succesfully collabrated!" };
