@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Chat, Friend, Gallery, Post, Trash, User, WebSession } from "./app";
+import { Chat, CollaborativeMode, Friend, Gallery, Post, Trash, User, WebSession } from "./app";
 import { BadValuesError } from "./concepts/errors";
 import { PostDoc, PostOptions } from "./concepts/post";
 import { UserDoc } from "./concepts/user";
@@ -183,20 +183,44 @@ class Routes {
   }
 
   // turn on collaborative mode for a private chat
-  @Router.post("/collaborativeMode/:chatId")
-  async startCollaborativeMode(chatId: ObjectId, session: WebSessionDoc) {}
+  @Router.post("/collaborativeModes")
+  async startCollaborativeMode(session: WebSessionDoc, username: string, message: string) {
+    const user = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    await CollaborativeMode.startCollab(user, user2);
+    return await CollaborativeMode.collab(user, user2, message);
+  }
 
   // add a message to the cumulativeMessage content for the collabroative mode in the specific chat
-  @Router.patch("/collaborativeMode/:chatId")
-  async collaborate(chatId: ObjectId, message: String) {}
+  @Router.patch("/collaborativeModes")
+  async collaborate(session: WebSessionDoc, username: string, message: string) {
+    const user = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    return await CollaborativeMode.collab(user, user2, message);
+  }
 
   // turn off collaborative mode inside the private chat and return the cumulative message stictched together
-  @Router.delete("/collaborativeMode/:chatId")
-  async finishCollaborativeMode(chatId: ObjectId) {}
+  @Router.delete("/collaborativeModes")
+  async finishCollaborativeMode(session: WebSessionDoc, username: string) {
+    const user = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    return await CollaborativeMode.finishCollab(user, user2);
+  }
 
-  // get the cumulativeMessage content (not yet stitched together)
-  @Router.get("/collaborativeMode/:chatId")
-  async getCollabContent(chatId: ObjectId) {}
+  // get the cumulativeMessage content
+  @Router.get("/collaborativeMode/content")
+  async getCollabContent(session: WebSessionDoc, username: string) {
+    const user = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    return await CollaborativeMode.getCollabContent(user, user2);
+  }
+
+  @Router.get("/collaborativeMode")
+  async getCollabMode(session: WebSessionDoc, username: string) {
+    const user = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    return await CollaborativeMode.getCollabMode(user, user2);
+  }
 
   @Router.get("/galleries/gallery/items/:itemId?")
   async getOneGalleryItem(session: WebSessionDoc, item: string) {

@@ -1,5 +1,5 @@
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-type InputTag = "input" | "textarea";
+type InputTag = "input" | "textarea" | "json";
 type Field = InputTag | { [key: string]: Field };
 type Fields = Record<string, Field>;
 
@@ -78,12 +78,6 @@ const operations: operation[] = [
     fields: { to: "input", message: "input", messageType: "input" },
   },
   {
-    name: "Remove Friend Request",
-    endpoint: "/api/friend/requests/:to",
-    method: "DELETE",
-    fields: { to: "input" },
-  },
-  {
     name: "Accept Friend Request",
     endpoint: "/api/friend/accept/:from",
     method: "PUT",
@@ -121,27 +115,33 @@ const operations: operation[] = [
   },
   {
     name: "Start Collaboration",
-    endpoint: "/api/collaborativeMode/:chatId",
+    endpoint: "/api/collaborativeModes",
     method: "POST",
-    fields: { chatId: "input" },
+    fields: { username: "input", message: "input" },
   },
   {
     name: "Collaborate",
-    endpoint: "/api/collaborativeMode/:chatId",
+    endpoint: "/api/collaborativeModes",
     method: "PATCH",
-    fields: { chatId: "input" },
+    fields: { username: "input", message: "input" },
   },
   {
     name: "Finish Collaboration",
-    endpoint: "/api/collaborativeMode/:chatId",
+    endpoint: "/api/collaborativeModes",
     method: "DELETE",
-    fields: { chatId: "input" },
+    fields: { username: "input" },
   },
   {
-    name: "View Collaboration",
-    endpoint: "/api/collaborativeMode/:chatId",
+    name: "Get CollabMode Content",
+    endpoint: "/api/collaborativeMode/content",
     method: "GET",
-    fields: { chatId: "input" },
+    fields: { username: "input" },
+  },
+  {
+    name: "Get CollabMode",
+    endpoint: "/api/collaborativeMode",
+    method: "GET",
+    fields: { username: "input" },
   },
   {
     name: "Get Single Gallery Item",

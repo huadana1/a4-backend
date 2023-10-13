@@ -1,41 +1,72 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
+import { NotFoundError } from "./errors";
 
-export interface CollaborativeModeChatStatusDoc extends BaseDoc {
+export interface CollaborativeModeDoc extends BaseDoc {
   user1: ObjectId;
   user2: ObjectId;
-  status: "on" | "off";
   turn: ObjectId;
 }
 
 export interface CollaborativeModeContentDoc extends BaseDoc {
-  chatId: ObjectId;
-  message: string;
+  collabModeId: ObjectId;
+  cumulativeMessage: Array<string>;
 }
 
 export default class CollaborativeModeConcept {
-  public readonly collaborativeModeChatStatuses: DocCollection<CollaborativeModeChatStatusDoc> = new DocCollection<CollaborativeModeChatStatusDoc>("collaborativeModeChatStatuses");
+  public readonly collaborativeModes: DocCollection<CollaborativeModeDoc> = new DocCollection<CollaborativeModeDoc>("collaborativeModes");
   public readonly collaborativeModeContents: DocCollection<CollaborativeModeContentDoc> = new DocCollection<CollaborativeModeContentDoc>("collaborativeModeContents");
 
-  async getCollabContent(chatId: ObjectId) {
-    const content = await this.collaborativeModeContents.readMany(chatId, {
-      sort: { dateUpdated: -1 },
+  async getCollabMode(user1: ObjectId, user2: ObjectId) {
+    const collabMode = await this.collaborativeModes.readOne({
+      $or: [
+        { user1: user1, user2: user2 },
+        { user1: user2, user2: user1 },
+      ],
     });
+
+    if (collabMode == null) {
+      throw new NotFoundError("Collaboration Mode between {0} and {1} was not found", user1, user2);
+    }
+
+    return collabMode;
+  }
+
+  async getCollabContent(user1: ObjectId, user2: ObjectId) {
+    const collabMode = await this.getCollabMode(user1, user2);
+
+    const content = await this.collaborativeModeContents.readOne({ collabModeId: collabMode._id });
+
     return content;
   }
 
   async startCollab(user1: ObjectId, user2: ObjectId) {
-    const _id = await this.collaborativeModeChatStatuses.createOne({ user1: user1, user2: user2, status: "on", turn: user1 });
-    return { msg: "Collaborative Mode successfully turned on!", post: await this.collaborativeModeChatStatuses.readOne({ _id }) };
+    return await this.collaborativeModes.createOne({ user1: user1, user2: user2, turn: user1 });
   }
 
-  async finishCollab(chatId: ObjectId) {
-    await this.collaborativeModeChatStatuses.deleteOne({ chatId });
-    return { msg: "Chat deleted successfully!" };
+  async finishCollab(user1: ObjectId, user2: ObjectId) {
+    const collabMode = await this.getCollabMode(user1, user2);
+
+    await this.collaborativeModes.deleteOne(collabMode);
+
+    return { msg: "Collaboration finished successfully!", result: (await this.collaborativeModeContents.readOne({ collabModeId: collabMode._id }))?.cumulativeMessage };
   }
 
-  async collab(chatId: ObjectId, message: string) {
-    const _id = await this.collaborativeModeContents.createOne({ chatId, message });
-    return { msg: "Succesfully collabrated!", post: await this.collaborativeModeContents.readOne({ _id }) };
+  async collab(user1: ObjectId, user2: ObjectId, message: string) {
+    const collabMode = await this.getCollabMode(user1, user2);
+    let priorContent = await this.getCollabContent(user1, user2);
+
+    if (priorContent == null) {
+      this.collaborativeModeContents.createOne({ collabModeId: collabMode._id, cumulativeMessage: [] });
+      priorContent = await this.getCollabContent(user1, user2);
+    }
+
+    const update = priorContent?.cumulativeMessage || [];
+    update.push(message);
+
+    const _id = await this.collaborativeModeContents.updateOne({ collabModeId: collabMode._id }, { cumulativeMessage: update });
+    await this.collaborativeModes.updateOne(collabMode, { turn: user2 });
+
+    return { msg: "Succesfully collabrated!" };
   }
 }
